@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Todo List JS</title>
+</head>
+<body>
+
+  <h1>Ma Todo List</h1>
+
+  <input type="text" id="tacheInput" placeholder="Ajouter une tâche">
+  <button id="ajouterBtn">Ajouter</button>
+
+  <p id="erreur"></p>
+
+  <ul id="listeTaches"></ul>
+  <p id="tache"></p>
+  <p>Total des tâches : <span id="total">0</span></p>
+
+  <script>
+    let  tacheInput = document.getElementById('tacheInput') ;
+const ajouterBtn = document.getElementById('ajouterBtn') ;
+
+const erreur = document.getElementById('erreur') ;
+const tache = document.getElementById("tache") ;
+const listeTaches = document.getElementById('listeTaches') ; 
+const total = document.getElementById('total') ;
+let nb = 0 ; 
+let sauvegarde = [] ;
+
+function afficheLocalStorage(){
+try{
+   const recuperation = JSON.parse(localStorage.getItem("tache")) ;
+   
+   if(recuperation === null) {
+      console.log("aucun doneees a recupere") ;
+      return ;
+   }
+   sauvegarde = recuperation || [] ;
+   sauvegarde.forEach((element ,index )=> {
+    
+         const li = document.createElement('li') ;
+           const btn = document.createElement('button') ;
+     btn.textContent = "X" ;
+      console.log(btn) ;
+      li.textContent = element ;
+      listeTaches.appendChild(li) ;
+      li.appendChild(btn) ;
+      total.textContent = sauvegarde.length;
+      btn.addEventListener('click' , () =>{
+         sauvegarde.splice(index , 1) ;
+         localStorage.setItem("tache" ,JSON.stringify(sauvegarde)) ;
+         li.remove() ;
+         total.textContent = sauvegarde.length;
+      });
+
+   });
+}
+catch{
+   console.log(erreur) ;
+}
+}
+afficheLocalStorage() ;
+
+ajouterBtn.addEventListener('click' , () =>{
+     let input = tacheInput.value.trim() ;
+     
+     if(input ==='') {
+        alert("saisi vide") ;
+        return ;
+     }
+     const btn = document.createElement('button') ;
+     btn.textContent = "X" ;
+     sauvegarde.push(input) ;
+     localStorage.setItem("tache" , JSON.stringify(sauvegarde))
+    const li = document.createElement('li') ;
+    li.textContent = input ;
+    li.appendChild(btn) ;
+
+    nb += 1 ; 
+    total.textContent= nb ;
+    tacheInput.value = "" ; 
+    listeTaches.appendChild(li) ;
+    btn.addEventListener('click' , ()=>{
+        li.remove() ;
+        nb -= 1 ;
+       total.textContent= nb ;
+
+    });
+     
+  
+
+  
+}) ;
+  </script>
+</body>
+</html>
