@@ -4,6 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&family=Fira+Code&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: #0a0a1a;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(180, 0, 255, 0.05) 0%, transparent 60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* Container principal */
+body > * {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Titre */
+#titre {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #00ffff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+/* Inputs */
+#nomDepense,
+#montantDepense {
+  display: block;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  color: #e0e0ff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#nomDepense:focus,
+#montantDepense:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.25);
+}
+
+#nomDepense::placeholder,
+#montantDepense::placeholder {
+  color: rgba(200, 200, 255, 0.35);
+}
+
+/* Bouton Ajouter */
+#ajouterDepense {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(180, 0, 255, 0.08));
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  color: #00ffff;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+#ajouterDepense:hover {
+  background: rgba(0, 255, 255, 0.15);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.3);
+}
+
+#ajouterDepense:active {
+  transform: scale(0.98);
+}
+
+/* Message erreur */
+#messageErreur {
+  color: #ff3264;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  min-height: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Liste des dépenses */
+#listeDepenses {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0;
+}
+
+#listeDepenses li {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(180, 0, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #c8c8ff;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+}
+
+#listeDepenses li:hover {
+  border-color: rgba(180, 0, 255, 0.4);
+}
+
+/* Bouton Supprimer (X) */
+#listeDepenses li button {
+  background: rgba(255, 50, 100, 0.08);
+  border: 1px solid rgba(255, 50, 100, 0.3);
+  border-radius: 6px;
+  color: #ff3264;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 1rem;
+  transition: all 0.2s;
+}
+
+#listeDepenses li button:hover {
+  background: rgba(255, 50, 100, 0.2);
+  box-shadow: 0 0 8px rgba(255, 50, 100, 0.3);
+}
+
+/* Ligne Total */
+body > p:last-of-type {
+  text-align: right;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.95rem;
+  color: rgba(200, 200, 255, 0.5);
+  border-top: 1px solid rgba(0, 255, 255, 0.15);
+  padding-top: 0.85rem;
+  letter-spacing: 1px;
+}
+
+#totalDepenses {
+  color: #b400ff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(180, 0, 255, 0.5);
+  margin-left: 0.4rem;
+}
+    </style>
 </head>
 <body>
     <h1 id="titre">Gestion des dépenses</h1>

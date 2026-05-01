@@ -1,59 +1,77 @@
-const titre = document.getElementById('titre') ; 
-titre.textContent = "nouveau titre"
 
-const nomDepense = document.getElementById('nomDepense') ;
-const montantDepense = document.getElementById('montantDepense') ;
+const titre = document.getElementById('titre');
+titre.textContent = "Nouveau titre";
 
-const btn = document.getElementById('ajouterDepense') ;
+const nomDepense = document.getElementById('nomDepense');
+const montantDepense = document.getElementById('montantDepense');
+const btn = document.getElementById('ajouterDepense');
+const messageErreur = document.getElementById('messageErreur');
+const listeDepenses = document.getElementById('listeDepenses');
+const totalDepenses = document.getElementById('totalDepenses');
 
-const messageErreur = document.getElementById('messageErreur') ;
-const listeDepenses = document.getElementById('listeDepenses') ; 
-const totalDepenses = document.getElementById('totalDepenses') ;
-let total = [] ; 
+let depenses = JSON.parse(localStorage.getItem('depenses')) || [];
 
-//button event
-btn.addEventListener('click' , () =>{
-   let  nom = nomDepense.value.trim() ;
-   let  montant = montantDepense.value.trim() ;
-   //verification saisi
-   if(nom === "" || montant === "") {
-      alert('saisi incorrect') ; 
-      return ; 
+function sauvegarder() {
+   localStorage.setItem('depenses', JSON.stringify(depenses));
+}
+
+function calculTotal() {
+   let total = 0;
+
+   depenses.forEach(depense => {
+      total += depense.montant;
+   });
+
+   return total;
+}
+
+function afficherDepenses() {
+   listeDepenses.innerHTML = "";
+
+   depenses.forEach((depense, index) => {
+      const li = document.createElement('li');
+      const supprimer = document.createElement('button');
+
+      li.textContent = `${depense.nom} - ${depense.montant} € `;
+      supprimer.textContent = 'X';
+
+      li.appendChild(supprimer);
+      listeDepenses.appendChild(li);
+
+      supprimer.addEventListener('click', () => {
+         depenses.splice(index, 1);
+         sauvegarder();
+         afficherDepenses();
+      });
+   });
+
+   totalDepenses.textContent = calculTotal();
+}
+
+btn.addEventListener('click', () => {
+   const nom = nomDepense.value.trim();
+   const montant = montantDepense.value.trim();
+
+   if (nom === "" || montant === "") {
+      messageErreur.textContent = "Saisie incorrecte";
+      return;
    }
-   
-   //affichage console 
-   // console.log(total) ;
-   console.log(nom) ;
-   montant = Number(montant) ;
-       total.push(montant) ;
 
-   //console.log(typeof montant) ;
+   const nouvelleDepense = {
+      nom: nom,
+      montant: Number(montant)
+   };
 
-// creation d element li et button
-   const li = document.createElement('li') ;
-   const supprimer = document.createElement('button') ; 
-   supprimer.textContent = 'X' ;
-   li.textContent = `${nom} -${montant} €` ;
-   li.appendChild(supprimer) ;
+   depenses.push(nouvelleDepense);
 
-   listeDepenses.appendChild(li) ;
+   sauvegarder();
+   afficherDepenses();
 
-  let montantTotal = calculTotal(total) ;
-  totalDepenses.textContent = montantTotal ;
-      supprimer.addEventListener('click' , () =>{
-         li.remove() ;
-      })
-   montantDepense.value = "" ; 
-   nomDepense.value = "" ; 
+   nomDepense.value = "";
+   montantDepense.value = "";
+   messageErreur.textContent = "";
 
+   nomDepense.focus();
 });
 
-function calculTotal(total) {
-      let montantTotal = 0 ;
-      total.forEach(element => {
-         // console.log(element) ;
-          montantTotal  += element ;
-      });
-      console.log( montantTotal ) ;
-      return montantTotal ; 
-}
+afficherDepenses();
