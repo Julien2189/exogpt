@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #222;
+    padding: 40px 20px;
+}
+
+/* Conteneur global si tu veux centrer ton contenu */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Bouton principal */
+#ouvrirModal {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#ouvrirModal:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
+}
+
+/* Liste des produits */
+#listeProduits {
+    list-style: none;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+#listeProduits li {
+    background: white;
+    margin-bottom: 12px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    animation: apparition 0.3s ease;
+}
+
+@keyframes apparition {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Bouton supprimer dans la liste */
+#listeProduits li button {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 11px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#listeProduits li button:hover {
+    background: #d90000;
+    transform: scale(1.08);
+}
+
+/* Total */
+p {
+    margin-top: 20px;
+    font-size: 18px;
+    color: white;
+}
+
+#total {
+    font-weight: bold;
+    color: #ffe066;
+}
+
+/* Fond de la modal */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+/* Boîte de la modal */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    animation: zoomModal 0.3s ease;
+}
+
+@keyframes zoomModal {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #1e3c72;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+    border-color: #0072ff;
+    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.15);
+}
+
+/* Message erreur */
+#erreur {
+    color: #e60000;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Boutons dans la modal */
+#ajouterProduit,
+#annuler {
+    border: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 8px 5px 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#ajouterProduit {
+    background: #00b894;
+    color: white;
+}
+
+#annuler {
+    background: #636e72;
+    color: white;
+}
+
+#ajouterProduit:hover,
+#annuler:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* Responsive mobile */
+@media (max-width: 500px) {
+    body {
+        padding: 25px 15px;
+    }
+
+    #ouvrirModal {
+        width: 100%;
+        max-width: 350px;
+    }
+
+    #listeProduits li {
+        font-size: 14px;
+        padding: 13px;
+    }
+
+    .modal-content {
+        padding: 25px 20px;
+    }
+}
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content{
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            width: 300px;
+        }
+        input{
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #erreur{
+            color:red ;
+        }
+    </style>
+</head>
+<body>
+    <button id="ouvrirModal">Ajouter un produit</button>
+
+<ul id="listeProduits"></ul>
+<p>Total : <span id="total">0</span> €</p>
+
+<div id="modalProduit" class="modal">
+  <div class="modal-content">
+    <h2>Nouveau produit</h2>
+
+    <input type="text" id="nomProduit" placeholder="Nom du produit">
+    <input type="number" id="prixProduit" placeholder="Prix du produit">
+
+    <p id="erreur"></p>
+
+    <button id="ajouterProduit">Ajouter</button>
+    <button id="annuler">Annuler</button>
+  </div>
+</div>
+<script src="script2.js"></script>
+</body>
+</html>

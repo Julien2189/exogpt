@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .modal {
+            display: none;
+            position:fixed ; 
+            inset:0  ;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content{
+            background: white;
+            padding: 25px; 
+            border-radius: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="btnSupprimer">Supprimer</button>
+
+<p id="message"></p>
+
+<div id="modalSuppression" class="modal">
+  <div class="modal-content">
+    <h2>Confirmation</h2>
+    <p>Voulez-vous vraiment supprimer cet élément ?</p>
+
+    <button id="btnOui">Oui</button>
+    <button id="btnAnnuler">Annuler</button>
+  </div>
+</div>
+<script>
+    const btnSupprimer = document.getElementById('btnSupprimer') ;
+    const message = document.getElementById('message') ;
+    const modalSuppression = document.getElementById('modalSuppression') ;
+    const btnOui = document.getElementById('btnOui') ; 
+    const btnAnnuler = document.getElementById('btnAnnuler') ;
+
+
+    btnSupprimer.addEventListener(('click'),()=>{
+            modalSuppression.style.display = "flex" ;
+    });
+    btnAnnuler.addEventListener('click' , () =>{
+        modalSuppression.style.display = "none" ;
+    });
+
+    btnOui.addEventListener("click", () => {
+    message.textContent = "Élément supprimé";
+    modalSuppression.style.display = "none";
+});
+      
+
+
+</script>
+</body>
+</html>

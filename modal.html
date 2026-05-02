@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 300px;
+  text-align: center;
+}
+
+.close {
+  float: right;
+  font-size: 25px;
+  cursor: pointer;
+}
+    </style>
+</head>
+<body>
+    <button id="ouvrirModal">Ouvrir la modal</button>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span id="fermerModal" class="close">&times;</span>
+    <h2>Bienvenue Julien</h2>
+    <p>Ceci est une fenêtre modale en JavaScript.</p>
+  </div>
+</div>
+<script>
+    const ouvrirModal = document.getElementById("ouvrirModal");
+const fermerModal = document.getElementById("fermerModal");
+const modal = document.getElementById("modal");
+
+ouvrirModal.addEventListener("click", function () {
+  modal.style.display = "flex";
+});
+
+fermerModal.addEventListener("click", function () {
+  modal.style.display = "none";
+});
+
+modal.addEventListener("click", function (event) {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+});
+</script>
+</body>
+</html>

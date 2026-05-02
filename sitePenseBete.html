@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pense-bête JavaScript - Tri des tableaux d'objets</title>
+
+  <style>
+    /* ================================
+       RESET
+    ================================= */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      line-height: 1.6;
+      padding-top: 74px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    code {
+      color: #67e8f9;
+      font-weight: 600;
+    }
+
+    /* ================================
+       HEADER
+    ================================= */
+
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      height: 74px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .logo span {
+      color: #38bdf8;
+    }
+
+    .menu-btn {
+      display: none;
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ================================
+       LAYOUT
+    ================================= */
+
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 74px);
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 74px;
+      left: 0;
+      width: 280px;
+      height: calc(100vh - 74px);
+      background: #111827;
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 1rem;
+      margin-bottom: 18px;
+      color: #93c5fd;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #cbd5e1;
+      transition: 0.25s ease;
+      font-size: 0.95rem;
+    }
+
+    .sidebar a:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: #ffffff;
+      transform: translateX(4px);
+    }
+
+    .content {
+      width: 100%;
+      margin-left: 280px;
+      padding: 40px 28px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    /* ================================
+       HERO
+    ================================= */
+
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a, #0f172a 60%, #155e75);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+
+    .hero p {
+      color: #cbd5e1;
+      font-size: 1.1rem;
+      max-width: 800px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    /* ================================
+       SECTIONS / CARDS
+    ================================= */
+
+    .section {
+      margin-bottom: 36px;
+    }
+
+    .section h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 20px;
+      padding: 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.28);
+    }
+
+    .card h3 {
+      color: #38bdf8;
+      font-size: 1.45rem;
+      margin-bottom: 14px;
+    }
+
+    .card h4 {
+      color: #a5f3fc;
+      font-size: 1.1rem;
+      margin: 20px 0 10px;
+    }
+
+    .card p {
+      color: #d1d5db;
+      margin-bottom: 14px;
+    }
+
+    .important {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fde68a;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin: 16px 0;
+    }
+
+    .success {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #bbf7d0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin: 16px 0;
+    }
+
+    /* ================================
+       CODE BLOCKS
+    ================================= */
+
+    pre {
+      background: #020617;
+      color: #e5e7eb;
+      padding: 18px;
+      border-radius: 16px;
+      overflow-x: auto;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+
+    pre code {
+      color: #dbeafe;
+      font-weight: 400;
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    /* ================================
+       LISTES
+    ================================= */
+
+    .memo-list {
+      list-style: none;
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .memo-item {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 14px 16px;
+      border-radius: 14px;
+      color: #dbeafe;
+    }
+
+    .exercise-list {
+      margin-left: 20px;
+      color: #d1d5db;
+    }
+
+    .exercise-list li {
+      margin-bottom: 8px;
+    }
+
+    /* ================================
+       TABLE
+    ================================= */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    th,
+    td {
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      text-align: left;
+    }
+
+    th {
+      background: rgba(56, 189, 248, 0.18);
+      color: #bfdbfe;
+    }
+
+    td {
+      background: rgba(15, 23, 42, 0.55);
+      color: #e5e7eb;
+    }
+
+    /* ================================
+       FOOTER
+    ================================= */
+
+    .footer {
+      text-align: center;
+      padding: 30px 10px;
+      color: #94a3b8;
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+      margin-top: 40px;
+    }
+
+    /* ================================
+       RESPONSIVE
+    ================================= */
+
+    @media (max-width: 900px) {
+      .menu-btn {
+        display: inline-block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: 0.3s ease;
+        width: 260px;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 28px 18px;
+      }
+
+      .hero {
+        padding: 28px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site-header {
+        padding: 0 14px;
+      }
+
+      .logo {
+        font-size: 1rem;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      pre {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="logo">Pense-bête <span>JavaScript</span></div>
+    <button class="menu-btn" id="menuBtn">Menu</button>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <h2>Sommaire</h2>
+
+    <ul>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#tableau-depart">Tableau de départ</a></li>
+      <li><a href="#prix-croissant">Prix croissant</a></li>
+      <li><a href="#prix-decroissant">Prix décroissant</a></li>
+      <li><a href="#stock-croissant">Stock croissant</a></li>
+      <li><a href="#stock-decroissant">Stock décroissant</a></li>
+      <li><a href="#nom-inverse">Nom inverse</a></li>
+      <li><a href="#filtrer-trier">Filtrer puis trier</a></li>
+      <li><a href="#calcul-stock">Valeur totale</a></li>
+      <li><a href="#produit-plus-cher">Produit le plus cher</a></li>
+      <li><a href="#copie-tableau">Copier avant de trier</a></li>
+      <li><a href="#depenses">Dépenses</a></li>
+      <li><a href="#resume">Résumé</a></li>
+      <li><a href="#mini-exercices">Mini exercices</a></li>
+    </ul>
+  </aside>
+
+  <main class="content">
+    <div class="container">
+
+      <section class="hero" id="intro">
+        <span class="badge">JavaScript — Tableaux d'objets</span>
+
+        <h1>Tri des tableaux d'objets avec sort()</h1>
+
+        <p>
+          Dans ce cours, tu vas revoir toutes les méthodes importantes pour trier
+          des tableaux d'objets en JavaScript : nombres, textes, dates, filtres,
+          calculs, copie de tableau et récupération du premier élément.
+        </p>
+      </section>
+
+      <section class="section" id="tableau-depart">
+        <h2>Tableau de départ</h2>
+
+        <div class="card">
+          <p>
+            On va travailler avec un tableau d'objets.
+            Chaque objet représente un produit avec plusieurs propriétés :
+            <code>nom</code>, <code>prix</code>, <code>stock</code> et
+            <code>categorie</code>.
+          </p>
+
+          <pre><code>const produits = [
+  { nom: "Clavier", prix: 49, stock: 12, categorie: "informatique" },
+  { nom: "Souris", prix: 25, stock: 30, categorie: "informatique" },
+  { nom: "Écran", prix: 199, stock: 5, categorie: "informatique" },
+  { nom: "Chaise", prix: 89, stock: 8, categorie: "bureau" },
+  { nom: "Bureau", prix: 249, stock: 3, categorie: "bureau" },
+  { nom: "Lampe", prix: 35, stock: 15, categorie: "bureau" }
+];</code></pre>
+
+          <div class="important">
+            Attention : la méthode <code>sort()</code> modifie directement le tableau original.
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="prix-croissant">
+        <h2>1. Trier par prix croissant</h2>
+
+        <div class="card">
+          <h3>Du moins cher au plus cher</h3>
+
+          <p>
+            Pour trier des nombres dans l'ordre croissant, on fait :
+            <code>a - b</code>.
+          </p>
+
+          <pre><code>produits.sort((a, b) => a.prix - b.prix);
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Souris   25
+Lampe    35
+Clavier  49
+Chaise   89
+Écran    199
+Bureau   249</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="prix-decroissant">
+        <h2>2. Trier par prix décroissant</h2>
+
+        <div class="card">
+          <h3>Du plus cher au moins cher</h3>
+
+          <p>
+            Pour trier des nombres dans l'ordre décroissant, on fait :
+            <code>b - a</code>.
+          </p>
+
+          <pre><code>produits.sort((a, b) => b.prix - a.prix);
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Bureau   249
+Écran    199
+Chaise   89
+Clavier  49
+Lampe    35
+Souris   25</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="stock-croissant">
+        <h2>3. Trier par stock croissant</h2>
+
+        <div class="card">
+          <h3>Du plus petit stock au plus grand stock</h3>
+
+          <pre><code>produits.sort((a, b) => a.stock - b.stock);
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Bureau   3
+Écran    5
+Chaise   8
+Clavier  12
+Lampe    15
+Souris   30</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="stock-decroissant">
+        <h2>4. Trier par stock décroissant</h2>
+
+        <div class="card">
+          <h3>Du plus grand stock au plus petit stock</h3>
+
+          <pre><code>produits.sort((a, b) => b.stock - a.stock);
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Souris   30
+Lampe    15
+Clavier  12
+Chaise   8
+Écran    5
+Bureau   3</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="nom-inverse">
+        <h2>5. Trier par nom inverse</h2>
+
+        <div class="card">
+          <h3>Ordre alphabétique inversé : Z vers A</h3>
+
+          <p>
+            Pour trier du texte, on utilise <code>localeCompare()</code>.
+          </p>
+
+          <pre><code>produits.sort((a, b) => b.nom.localeCompare(a.nom));
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Souris
+Lampe
+Écran
+Clavier
+Chaise
+Bureau</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Bonus : ordre alphabétique A vers Z</h3>
+
+          <pre><code>produits.sort((a, b) => a.nom.localeCompare(b.nom));
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Bureau
+Chaise
+Clavier
+Écran
+Lampe
+Souris</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="filtrer-trier">
+        <h2>6. Filtrer puis trier</h2>
+
+        <div class="card">
+          <h3>Méthode avec forEach(), if et push()</h3>
+
+          <p>
+            Ici, on veut récupérer seulement les produits de la catégorie
+            <code>informatique</code>, puis les trier par prix croissant.
+          </p>
+
+          <pre><code>let informatique = [];
+
+produits.forEach(produit => {
+  if (produit.categorie === "informatique") {
+    informatique.push(produit);
+  }
+});
+
+informatique.sort((a, b) => a.prix - b.prix);
+
+console.log(informatique);</code></pre>
+
+          <ul class="memo-list">
+            <li class="memo-item"><code>forEach()</code> sert à parcourir le tableau.</li>
+            <li class="memo-item"><code>if</code> sert à vérifier une condition.</li>
+            <li class="memo-item"><code>push()</code> sert à ajouter dans un tableau.</li>
+            <li class="memo-item"><code>sort()</code> sert à trier le résultat.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Même résultat avec filter()</h3>
+
+          <p>
+            La méthode <code>filter()</code> crée un nouveau tableau avec uniquement
+            les éléments qui respectent une condition.
+          </p>
+
+          <pre><code>const informatique = produits
+  .filter(produit => produit.categorie === "informatique")
+  .sort((a, b) => a.prix - b.prix);
+
+console.log(informatique);</code></pre>
+
+          <div class="success">
+            Ta méthode avec <code>forEach()</code> est très bonne pour apprendre.
+            La méthode avec <code>filter()</code> est simplement plus courte.
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="calcul-stock">
+        <h2>7. Trier avec un calcul</h2>
+
+        <div class="card">
+          <h3>Trier par valeur totale du stock</h3>
+
+          <p>
+            On peut aussi trier un tableau à partir d'un calcul.
+          </p>
+
+          <pre><code>valeurTotale = prix * stock</code></pre>
+
+          <p>Tri du plus petit total au plus grand total :</p>
+
+          <pre><code>produits.sort((a, b) => {
+  return a.prix * a.stock - b.prix * b.stock;
+});
+
+console.log(produits);</code></pre>
+
+          <p>Version plus lisible :</p>
+
+          <pre><code>produits.sort((a, b) => {
+  const totalA = a.prix * a.stock;
+  const totalB = b.prix * b.stock;
+
+  return totalA - totalB;
+});
+
+console.log(produits);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>Lampe    35 * 15  = 525
+Clavier  49 * 12  = 588
+Chaise   89 * 8   = 712
+Bureau   249 * 3  = 747
+Souris   25 * 30  = 750
+Écran    199 * 5  = 995</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="produit-plus-cher">
+        <h2>8. Afficher le produit le plus cher</h2>
+
+        <div class="card">
+          <h3>Trier puis récupérer le premier élément</h3>
+
+          <p>
+            Pour afficher le produit le plus cher, on trie par prix décroissant,
+            puis on récupère le premier élément avec <code>[0]</code>.
+          </p>
+
+          <pre><code>const produitsTries = [...produits].sort((a, b) => b.prix - a.prix);
+
+console.log(produitsTries[0]);</code></pre>
+
+          <p>Résultat attendu :</p>
+
+          <pre><code>{ nom: "Bureau", prix: 249, stock: 3, categorie: "bureau" }</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="copie-tableau">
+        <h2>9. Ne pas modifier le tableau original</h2>
+
+        <div class="card">
+          <h3>Créer une copie avant de trier</h3>
+
+          <p>
+            Comme <code>sort()</code> modifie le tableau original,
+            il est souvent préférable de créer une copie avec
+            <code>[...tableau]</code>.
+          </p>
+
+          <pre><code>const produitsTries = [...produits];
+
+produitsTries.sort((a, b) => b.prix - a.prix);
+
+console.log("Tableau original :", produits);
+console.log("Tableau trié :", produitsTries);</code></pre>
+
+          <p>Version courte :</p>
+
+          <pre><code>const produitsTries = [...produits].sort((a, b) => b.prix - a.prix);
+
+console.log(produitsTries);</code></pre>
+
+          <div class="important">
+            <code>[...produits]</code> crée une copie du tableau.
+            Ensuite, le tri se fait sur la copie, pas sur l'original.
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="depenses">
+        <h2>10. Trier un tableau de dépenses</h2>
+
+        <div class="card">
+          <h3>Tableau de départ</h3>
+
+          <pre><code>const depenses = [
+  { nom: "Courses", montant: 80, date: "2026-04-10" },
+  { nom: "Essence", montant: 50, date: "2026-04-08" },
+  { nom: "Internet", montant: 30, date: "2026-04-01" },
+  { nom: "Restaurant", montant: 45, date: "2026-04-12" }
+];</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Trier par montant croissant</h3>
+
+          <pre><code>depenses.sort((a, b) => a.montant - b.montant);
+
+console.log(depenses);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Trier par montant décroissant</h3>
+
+          <pre><code>depenses.sort((a, b) => b.montant - a.montant);
+
+console.log(depenses);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Trier par date du plus récent au plus ancien</h3>
+
+          <pre><code>depenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+console.log(depenses);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Trier par date du plus ancien au plus récent</h3>
+
+          <pre><code>depenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+console.log(depenses);</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>Trier par nom alphabétique</h3>
+
+          <pre><code>depenses.sort((a, b) => a.nom.localeCompare(b.nom));
+
+console.log(depenses);</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="resume">
+        <h2>Résumé à retenir</h2>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Objectif</th>
+                <th>Méthode</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Nombre croissant</td>
+                <td><code>a.nombre - b.nombre</code></td>
+              </tr>
+
+              <tr>
+                <td>Nombre décroissant</td>
+                <td><code>b.nombre - a.nombre</code></td>
+              </tr>
+
+              <tr>
+                <td>Texte A vers Z</td>
+                <td><code>a.nom.localeCompare(b.nom)</code></td>
+              </tr>
+
+              <tr>
+                <td>Texte Z vers A</td>
+                <td><code>b.nom.localeCompare(a.nom)</code></td>
+              </tr>
+
+              <tr>
+                <td>Date ancienne vers récente</td>
+                <td><code>new Date(a.date) - new Date(b.date)</code></td>
+              </tr>
+
+              <tr>
+                <td>Date récente vers ancienne</td>
+                <td><code>new Date(b.date) - new Date(a.date)</code></td>
+              </tr>
+
+              <tr>
+                <td>Copier avant de trier</td>
+                <td><code>[...tableau].sort(...)</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" id="mini-exercices">
+        <h2>Mini exercices pour t'entraîner</h2>
+
+        <div class="card">
+          <p>
+            Reprends le tableau <code>produits</code> et refais ces exercices
+            sans regarder la correction :
+          </p>
+
+          <ol class="exercise-list">
+            <li>Trier par prix croissant.</li>
+            <li>Trier par prix décroissant.</li>
+            <li>Trier par stock croissant.</li>
+            <li>Trier par stock décroissant.</li>
+            <li>Trier par nom de Z vers A.</li>
+            <li>Filtrer les produits informatiques puis les trier par prix.</li>
+            <li>Trier par valeur totale : <code>prix * stock</code>.</li>
+            <li>Afficher uniquement le produit le plus cher.</li>
+            <li>Créer une copie du tableau avant de trier.</li>
+            <li>Trier un tableau de dépenses par montant, date et nom.</li>
+          </ol>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>Pense-bête JavaScript — Tri des tableaux d'objets</p>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+    });
+
+    const links = document.querySelectorAll(".sidebar a");
+
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+      });
+    });
+  </script>
+
+</body>
+</html>

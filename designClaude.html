@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0a1a;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 0, 255, 0.04) 0%, transparent 60%);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 255, 0.012) 2px,
+                rgba(0, 255, 255, 0.012) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ══════════════════════════════
+           HEADER
+        ══════════════════════════════ */
+        .header {
+            position: relative;
+            background: rgba(10, 10, 30, 0.9);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 0 28px;
+            height: 68px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 255, 255, 0.08);
+            z-index: 50;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, transparent);
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #00ffff;
+            text-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+        }
+
+        /* ══════════════════════════════
+           BOUTON BURGER
+        ══════════════════════════════ */
+        .menu-btn {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #00ffff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .menu-btn:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 14px rgba(0, 255, 255, 0.35);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ══════════════════════════════
+           NAV DROPDOWN
+        ══════════════════════════════ */
+        .menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 20px;
+            width: 220px;
+            background: rgba(8, 8, 24, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 16px 40px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(0, 255, 255, 0.08);
+        }
+
+        .menu::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            width: 16px;
+            height: 16px;
+            border-top: 2px solid #00ffff;
+            border-right: 2px solid #00ffff;
+        }
+
+        .menu.active {
+            display: block;
+            animation: slideDown 0.2s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            text-decoration: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(180, 220, 255, 0.75);
+            border-left: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .menu a::before {
+            content: '›';
+            font-size: 18px;
+            color: #00ffff;
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: all 0.2s ease;
+        }
+
+        .menu a:hover {
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+            border-left-color: #00ffff;
+            padding-left: 22px;
+        }
+
+        .menu a:hover::before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .menu a + a {
+            border-top: 1px solid rgba(0, 255, 255, 0.07);
+        }
+
+        /* ══════════════════════════════
+           MAIN / BOUTON MODAL
+        ══════════════════════════════ */
+        main {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 68px);
+        }
+
+        #ouvrirModal {
+            position: relative;
+            padding: 14px 32px;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            border-radius: 4px;
+            background: transparent;
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 0 12px rgba(0, 255, 255, 0.2),
+                inset 0 0 12px rgba(0, 255, 255, 0.05);
+        }
+
+        #ouvrirModal::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), transparent);
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #ouvrirModal:hover {
+            color: #fff;
+            border-color: #00ffff;
+            box-shadow:
+                0 0 24px rgba(0, 255, 255, 0.5),
+                0 0 48px rgba(0, 255, 255, 0.2),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        #ouvrirModal:hover::before { opacity: 1; }
+
+        /* ══════════════════════════════
+           MODAL OVERLAY
+        ══════════════════════════════ */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 20, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* ══════════════════════════════
+           MODAL CONTENT
+        ══════════════════════════════ */
+        .modal-content {
+            position: relative;
+            width: 360px;
+            padding: 32px;
+            background: rgba(10, 10, 30, 0.92);
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            border-radius: 8px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 0 40px rgba(0, 255, 255, 0.1),
+                0 0 80px rgba(255, 0, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: scaleIn 0.2s ease forwards;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 24px;
+            height: 24px;
+            border-top: 2px solid #00ffff;
+            border-left: 2px solid #00ffff;
+            border-radius: 2px 0 0 0;
+        }
+
+        .modal-content::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 24px;
+            height: 24px;
+            border-bottom: 2px solid #ff00ff;
+            border-right: 2px solid #ff00ff;
+            border-radius: 0 0 2px 0;
+        }
+
+        /* ══════════════════════════════
+           BOUTON FERMER
+        ══════════════════════════════ */
+        #fermer {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 0, 255, 0.4);
+            border-radius: 4px;
+            color: #ff00ff;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 0, 255, 0.05);
+            line-height: 1;
+            user-select: none;
+        }
+
+        #fermer:hover {
+            background: rgba(255, 0, 255, 0.15);
+            border-color: #ff00ff;
+            box-shadow: 0 0 12px rgba(255, 0, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* ══════════════════════════════
+           CARDS
+        ══════════════════════════════ */
+        .card {
+            background: rgba(0, 255, 255, 0.03);
+            border: 1px solid rgba(0, 255, 255, 0.12);
+            border-left: 2px solid rgba(0, 255, 255, 0.6);
+            border-radius: 4px;
+            padding: 16px 18px;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 255, 255, 0.3);
+            border-left-color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .card h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+
+        .card p {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(200, 220, 255, 0.8);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── HEADER ── -->
+    <header class="header">
+        <h1>Mon Site</h1>
+        <button id="menuBtn" class="menu-btn" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="menu" class="menu">
+            <a href="#">Accueil</a>
+            <a href="#">Projets</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </nav>
+    </header>
+
+    <!-- ── MAIN ── -->
+    <main>
+        <button id="ouvrirModal">Ouvrir le modal</button>
+    </main>
+
+    <!-- ── MODAL ── -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span id="fermer">✕</span>
+            <div class="card">
+                <h2>Modal</h2>
+            </div>
+            <div class="card">
+                <p>Modal facile</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Burger menu ──
+        const menuBtn = document.getElementById('menuBtn');
+        const menu    = document.getElementById('menu');
+
+        menuBtn.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            menuBtn.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('active');
+                menuBtn.classList.remove('open');
+            }
+        });
+
+        // ── Modal ──
+        const ouvrirModal = document.getElementById('ouvrirModal');
+        const modal       = document.getElementById('modal');
+        const fermer      = document.getElementById('fermer');
+
+        ouvrirModal.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+
+        fermer.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+    </script>
+
+</body>
+</html>

@@ -1,77 +1,48 @@
-
-const titre = document.getElementById('titre');
+const titre = document.getElementById('titre'); 
 titre.textContent = "Nouveau titre";
 
 const nomDepense = document.getElementById('nomDepense');
 const montantDepense = document.getElementById('montantDepense');
+
 const btn = document.getElementById('ajouterDepense');
+
 const messageErreur = document.getElementById('messageErreur');
-const listeDepenses = document.getElementById('listeDepenses');
+const listeDepenses = document.getElementById('listeDepenses'); 
 const totalDepenses = document.getElementById('totalDepenses');
 
-let depenses = JSON.parse(localStorage.getItem('depenses')) || [];
-
-function sauvegarder() {
-   localStorage.setItem('depenses', JSON.stringify(depenses));
-}
-
-function calculTotal() {
-   let total = 0;
-
-   depenses.forEach(depense => {
-      total += depense.montant;
-   });
-
-   return total;
-}
-
-function afficherDepenses() {
-   listeDepenses.innerHTML = "";
-
-   depenses.forEach((depense, index) => {
-      const li = document.createElement('li');
-      const supprimer = document.createElement('button');
-
-      li.textContent = `${depense.nom} - ${depense.montant} € `;
-      supprimer.textContent = 'X';
-
-      li.appendChild(supprimer);
-      listeDepenses.appendChild(li);
-
-      supprimer.addEventListener('click', () => {
-         depenses.splice(index, 1);
-         sauvegarder();
-         afficherDepenses();
-      });
-   });
-
-   totalDepenses.textContent = calculTotal();
-}
+let total = 0;
 
 btn.addEventListener('click', () => {
-   const nom = nomDepense.value.trim();
-   const montant = montantDepense.value.trim();
+   let nom = nomDepense.value.trim();
+   let montant = montantDepense.value.trim();
 
    if (nom === "" || montant === "") {
-      messageErreur.textContent = "Saisie incorrecte";
-      return;
+      alert('Saisie incorrecte'); 
+      return; 
    }
 
-   const nouvelleDepense = {
-      nom: nom,
-      montant: Number(montant)
-   };
+   montant = Number(montant);
 
-   depenses.push(nouvelleDepense);
+   const li = document.createElement('li');
+   const supprimer = document.createElement('button'); 
 
-   sauvegarder();
-   afficherDepenses();
+   supprimer.textContent = 'X';
 
-   nomDepense.value = "";
-   montantDepense.value = "";
-   messageErreur.textContent = "";
+   li.textContent = `${nom} - ${montant} € `;
+   li.appendChild(supprimer);
 
-   nomDepense.focus();
+   listeDepenses.appendChild(li);
+
+   total += montant;
+   totalDepenses.textContent = total;
+
+   supprimer.addEventListener('click', () => {
+      li.remove();
+
+      total -= montant;
+      totalDepenses.textContent = total;
+   });
+
+   montantDepense.value = ""; 
+   nomDepense.value = ""; 
 });
-
-afficherDepenses();

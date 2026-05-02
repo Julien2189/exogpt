@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Header */
+.header {
+    background: #1e3c72;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Bouton burger */
+.menu-btn {
+    font-size: 28px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+/* Menu caché par défaut sur mobile */
+.menu {
+    display: none;
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    background: white;
+    width: 200px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+/* Liens */
+.menu a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #1e3c72;
+    font-weight: bold;
+}
+
+.menu a:hover {
+    background: #f0f4ff;
+}
+
+/* Classe ajoutée en JS */
+.menu.active {
+    display: block;
+}
+    </style>
+</head>
+<body>
+    <header class="header">
+    <h1>Mon Site</h1>
+
+    <button id="menuBtn" class="menu-btn">☰</button>
+
+    <nav id="menu" class="menu">
+        <a href="#">Accueil</a>
+        <a href="#">Projets</a>
+        <a href="#">Services</a>
+        <a href="#">Contact</a>
+    </nav>
+</header>
+<script>
+ menuBtn.addEventListener("click", () => {
+    menu.classList.toggle("active");
+
+    if (menu.classList.contains("active")) {
+        menuBtn.textContent = "✖";
+    } else {
+        menuBtn.textContent = "☰";
+    }
+});
+</script>
+</body>
+</html>
