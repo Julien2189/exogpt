@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio interactif</title>
+    
+    <link rel="stylesheet" href="style4.css">
+
+    
+        
+    
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">J</span>
+            <h1>Julien Dev</h1>
+        </div>
+
+        <button id="menuBtn" class="menu-btn">☰</button>
+
+        <nav id="menu" class="menu">
+            <a href="#">Accueil</a>
+            <a href="#about">À propos</a>
+            <a href="#skills">Compétences</a>
+            <a href="#projects">Projets</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <div class="hero-content">
+                <p class="badge">Développeur web en progression</p>
+
+                <h2>Je crée des interfaces web modernes et interactives</h2>
+
+                <p>
+                    Bienvenue sur mon portfolio. Je travaille sur des projets en HTML,
+                    CSS et JavaScript pour progresser vers le métier de développeur web.
+                </p>
+
+                <div class="hero-actions">
+                    <button id="openModal" class="btn-primary">
+                        Découvrir mon parcours
+                    </button>
+
+                    <a href="#projects" class="btn-secondary">
+                        Voir mes projets
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-card">
+                <h3>Portfolio interactif</h3>
+                <p>HTML • CSS • JavaScript</p>
+
+                <div class="stats">
+                    <div class="stat">
+                        <strong>3</strong>
+                        <span>Technos</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong>6</strong>
+                        <span>Projets</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong>100%</strong>
+                        <span>Pratique</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <h2>À propos</h2>
+
+            <p>
+                Je développe mes compétences en créant des composants interactifs :
+                menus, modals, accordéons, formulaires et interfaces responsives.
+            </p>
+        </section>
+
+        <section id="skills" class="section">
+            <h2>Mes compétences</h2>
+
+            <div class="accordion">
+                <div id="accordionBtn" class="accordion-header">
+                    <div>
+                        <span>Voir les détails</span>
+                        <h3>HTML, CSS et JavaScript</h3>
+                    </div>
+
+                    <span class="arrow">▼</span>
+                </div>
+
+                <div id="accordionContent" class="accordion-content">
+                    <h3>Compétences travaillées</h3>
+
+                    <p>
+                        Je travaille les bases essentielles du développement web
+                        à travers des exercices pratiques et des projets concrets.
+                    </p>
+
+                    <div class="skills-grid">
+                        <article class="skill-card">
+                            <h4>HTML</h4>
+                            <p>Structurer une page avec des balises propres.</p>
+                        </article>
+
+                        <article class="skill-card">
+                            <h4>CSS</h4>
+                            <p>Créer des mises en page modernes et responsives.</p>
+                        </article>
+
+                        <article class="skill-card">
+                            <h4>JavaScript</h4>
+                            <p>Manipuler le DOM et gérer les interactions.</p>
+                        </article>
+
+                        <article class="skill-card">
+                            <h4>Responsive</h4>
+                            <p>Adapter les interfaces aux écrans mobiles.</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="section">
+            <h2>Mes projets</h2>
+
+            <div class="projects-grid">
+                <article class="project-card">
+                    <span class="project-icon">☰</span>
+                    <h3>Menu burger</h3>
+                    <p>Création d’un menu responsive avec JavaScript.</p>
+                </article>
+
+                <article class="project-card">
+                    <span class="project-icon">▣</span>
+                    <h3>Modal animée</h3>
+                    <p>Ouverture et fermeture d’une fenêtre modale.</p>
+                </article>
+
+                <article class="project-card">
+                    <span class="project-icon">⌄</span>
+                    <h3>Accordéon</h3>
+                    <p>Affichage d’un contenu déroulant au clic.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h2>Contact</h2>
+
+            <p>
+                Cette page est un exercice pour pratiquer le CSS et le JavaScript.
+            </p>
+        </section>
+
+    </main>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button id="closeModal" class="close-modal">X</button>
+
+            <p class="badge">Mon objectif</p>
+
+            <h2>Devenir développeur web</h2>
+
+            <p>
+                Mon objectif est de maîtriser HTML, CSS et JavaScript pour créer
+                des interfaces propres, modernes et interactives.
+            </p>
+
+            <ul class="modal-list">
+                <li>Créer des pages responsives</li>
+                <li>Comprendre le DOM</li>
+                <li>Manipuler les classes CSS</li>
+                <li>Créer des composants interactifs</li>
+            </ul>
+
+            <button id="modalProjectBtn" class="modal-btn">
+                Voir les projets
+            </button>
+        </div>
+    </div>
+    <script>
+        const modal = document.getElementById('modal')  ;
+        const closeModal = document.getElementById('closeModal') ; 
+        const accordionBtn = document.getElementById('accordionBtn') ;
+        accordionBtn.addEventListener(('click') , () => {
+            modal.classList.toggle('active') ;
+        }) ; 
+        closeModal.addEventListener(('click') , () =>{
+            modal.classList.remove('active') ;
+        }); 
+        const menu = document.getElementById('menu') ;
+        const menuBtn = document.getElementById('menuBtn') ; 
+        menuBtn.addEventListener(("click") , ()=>{
+            menu.classList.toggle('active') ;
+        })
+    </script>
+</body>
+</html>

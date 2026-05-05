@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini LLM JavaScript + TensorFlow.js</title>
+
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <link rel="stylesheet" href="style3.css">
+
+</head>
+
+<body>
+  <div class="container">
+    <h1>Mini LLM JavaScript + TensorFlow.js</h1>
+
+    <p>
+      Cette page montre deux niveaux :
+      <strong>un mini modèle n-gram</strong> qui prédit le prochain token,
+      puis <strong>un modèle TensorFlow.js</strong> qui apprend depuis une mémoire JSON.
+    </p>
+
+    <!-- PARTIE 1 : MODELE N-GRAM -->
+    <div class="card">
+      <h2>1. Texte d'entraînement du modèle n-gram</h2>
+
+      <p class="small">
+        Ce modèle apprend les suites de tokens. Il ne comprend pas vraiment le sens,
+        mais il montre le mécanisme : contexte → prochain token.
+      </p>
+
+      <textarea id="trainingText">
+je suis un mini modèle de langage .
+je prédis le prochain mot .
+je transforme le texte en tokens .
+un token est un petit morceau de texte .
+le modèle apprend avec des exemples .
+javascript permet de créer un chatbot .
+un chatbot répond à une question .
+je suis un chatbot simple .
+le langage javascript est puissant .
+le modèle utilise le contexte pour choisir le prochain token .
+      </textarea>
+
+      <label for="contextSize">Taille du contexte :</label>
+      <select id="contextSize">
+        <option value="1">1 token</option>
+        <option value="2" selected>2 tokens</option>
+        <option value="3">3 tokens</option>
+      </select>
+
+      <button id="trainBtn">Entraîner le mini modèle n-gram</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>2. Statistiques n-gram</h2>
+        <p id="stats">Le modèle n-gram n'est pas encore entraîné.</p>
+      </div>
+
+      <div class="card">
+        <h2>3. Tokens du texte</h2>
+        <div id="tokensDisplay" class="tokens"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4. Génération avec le modèle n-gram</h2>
+
+      <label for="promptInput">Début de phrase :</label>
+      <input id="promptInput" value="je suis" />
+
+      <label for="temperatureInput">Température :</label>
+      <select id="temperatureInput">
+        <option value="0.5">0.5 - plus prévisible</option>
+        <option value="1" selected>1 - équilibré</option>
+        <option value="1.5">1.5 - plus créatif</option>
+      </select>
+
+      <button id="predictBtn">Voir les prochains tokens possibles</button>
+      <button id="generateBtn">Générer du texte</button>
+      <button id="saveNgramAnswerBtn" class="success">Ajouter cette génération au JSON</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>5. Prochains tokens possibles</h2>
+        <div id="predictionDisplay" class="result">Aucune prédiction pour le moment.</div>
+      </div>
+
+      <div class="card">
+        <h2>6. Texte généré</h2>
+        <div id="generatedText" class="result">Aucun texte généré.</div>
+      </div>
+    </div>
+
+    <!-- PARTIE 2 : MEMOIRE JSON -->
+    <div class="card">
+      <h2>7. Mémoire JSON question / réponse</h2>
+
+      <p class="small">
+        Ici, tu ajoutes des exemples. Le modèle TensorFlow apprend ensuite à reconnaître
+        une question et à choisir la réponse la plus adaptée.
+      </p>
+
+      <label for="dataQuestion">Question ou phrase utilisateur :</label>
+      <input id="dataQuestion" placeholder="Exemple : c'est quoi un token ?" />
+
+      <label for="dataResponse">Réponse à apprendre :</label>
+      <textarea id="dataResponse" placeholder="Exemple : Un token est un petit morceau de texte utilisé par un modèle IA."></textarea>
+
+      <button id="addExampleBtn">Ajouter à la mémoire JSON</button>
+      <button id="exportJsonBtn">Exporter data.json</button>
+      <button id="importJsonBtn" class="warning">Importer data.json</button>
+      <button id="clearDatasetBtn" class="danger">Réinitialiser la mémoire</button>
+
+      <input id="jsonFileInput" type="file" accept=".json,application/json" style="display:none;" />
+
+      <p id="datasetStats" class="small"></p>
+    </div>
+
+    <div class="card">
+      <h2>8. Aperçu du JSON sauvegardé</h2>
+      <p class="small">
+        La sauvegarde automatique se fait dans le localStorage du navigateur.
+        Le bouton Exporter permet de récupérer un vrai fichier JSON.
+      </p>
+      <pre id="jsonPreview" class="result"></pre>
+    </div>
+
+    <!-- PARTIE 3 : TENSORFLOW -->
+    <div class="card">
+      <h2>9. Entraînement TensorFlow.js</h2>
+
+      <p>
+        Le modèle TensorFlow utilise une méthode simple :
+      </p>
+
+      <div class="result">
+question utilisateur → tokens → vecteur numérique → réseau neuronal → réponse prédite
+      </div>
+
+      <button id="trainTfBtn">Entraîner TensorFlow avec le JSON</button>
+      <button id="loadSavedTfBtn">Charger le modèle sauvegardé</button>
+
+      <p id="tfStatus" class="small">TensorFlow n'est pas encore entraîné.</p>
+      <div id="tfInfo" class="result">Aucune information TensorFlow pour le moment.</div>
+    </div>
+
+    <div class="card">
+      <h2>10. Tester le mini chatbot TensorFlow</h2>
+
+      <label for="askInput">Ta question :</label>
+      <input id="askInput" placeholder="Exemple : explique moi un token" />
+
+      <button id="askTfBtn">Répondre avec TensorFlow</button>
+      <button id="saveTfAnswerBtn" class="success">Renforcer cette réponse dans le JSON</button>
+
+      <h3>Réponse du modèle :</h3>
+      <div id="tfAnswer" class="result">Aucune question posée.</div>
+
+      <label for="correctedResponse">Correction manuelle :</label>
+      <textarea id="correctedResponse" placeholder="Si la réponse est mauvaise, écris ici la bonne réponse puis clique sur Ajouter la correction."></textarea>
+
+      <button id="saveCorrectionBtn" class="warning">Ajouter la correction au JSON</button>
+    </div>
+  </div>
+<script>
+  /************************************************************
+   * VARIABLES GLOBALES
+   ************************************************************/
+
+  let ngramModel = {};
+  let ngramVocabulary = [];
+  let trainedTokens = [];
+  let maxContextSize = 2;
+
+  let dataset = [];
+  let neuralModel = null;
+
+  let currentTfMeta = {
+    vocabulary: [],
+    responses: []
+  };
+
+  let lastNgramPrompt = "";
+  let lastNgramGenerated = "";
+
+  let lastTfQuestion = "";
+  let lastTfResponse = "";
+
+  /*
+    Maintenant, les données d'apprentissage ne viennent plus du localStorage.
+    Elles viennent de PHP + MySQL.
+  */
+  const API_GET_LEARNING = "api/get-learning.php";
+  const API_SAVE_LEARNING = "api/save-learning.php";
+
+  /*
+    On garde encore le modèle TensorFlow dans le navigateur.
+    Plus tard, on pourra aussi sauvegarder le modèle côté serveur si tu veux.
+  */
+  const TF_META_STORAGE_KEY = "mini_llm_tf_meta_v1";
+  const TF_MODEL_STORAGE_KEY = "localstorage://mini-llm-tfjs-response-model";
+
+  /*
+    Dataset de secours uniquement si MySQL ne répond pas.
+    La vraie mémoire doit maintenant être dans la base de données.
+  */
+  const defaultDataset = [
+    {
+      question: "c est quoi un token",
+      reponse: "Un token est un petit morceau de texte utilisé par un modèle de langage.",
+    },
+    {
+      question: "explique moi un token",
+      reponse: "Un token est un petit morceau de texte utilisé par un modèle de langage.",
+    },
+    {
+      question: "a quoi sert un token",
+      reponse: "Un token sert à découper le texte en morceaux compréhensibles par le modèle.",
+    },
+    {
+      question: "c est quoi un llm",
+      reponse: "Un LLM est un grand modèle de langage qui prédit le prochain token.",
+    },
+    {
+      question: "explique moi les llm",
+      reponse: "Un LLM est un grand modèle de langage qui prédit le prochain token.",
+    },
+    {
+      question: "comment fonctionne un modele de langage",
+      reponse: "Un modèle de langage utilise le contexte pour prédire le prochain token.",
+    },
+    {
+      question: "c est quoi javascript",
+      reponse: "JavaScript est un langage qui permet de rendre une page web interactive.",
+    },
+    {
+      question: "comment creer un chatbot",
+      reponse: "Pour créer un chatbot, il faut une interface, une mémoire de données et une logique de réponse.",
+    }
+  ];
+
+  /************************************************************
+   * RECUPERATION DES ELEMENTS HTML
+   ************************************************************/
+
+  const trainingText = document.getElementById("trainingText");
+  const contextSize = document.getElementById("contextSize");
+  const trainBtn = document.getElementById("trainBtn");
+  const stats = document.getElementById("stats");
+  const tokensDisplay = document.getElementById("tokensDisplay");
+  const promptInput = document.getElementById("promptInput");
+  const temperatureInput = document.getElementById("temperatureInput");
+  const predictBtn = document.getElementById("predictBtn");
+  const generateBtn = document.getElementById("generateBtn");
+  const saveNgramAnswerBtn = document.getElementById("saveNgramAnswerBtn");
+  const predictionDisplay = document.getElementById("predictionDisplay");
+  const generatedText = document.getElementById("generatedText");
+
+  const dataQuestion = document.getElementById("dataQuestion");
+  const dataResponse = document.getElementById("dataResponse");
+  const addExampleBtn = document.getElementById("addExampleBtn");
+  const exportJsonBtn = document.getElementById("exportJsonBtn");
+  const importJsonBtn = document.getElementById("importJsonBtn");
+  const clearDatasetBtn = document.getElementById("clearDatasetBtn");
+  const jsonFileInput = document.getElementById("jsonFileInput");
+  const datasetStats = document.getElementById("datasetStats");
+  const jsonPreview = document.getElementById("jsonPreview");
+
+  const trainTfBtn = document.getElementById("trainTfBtn");
+  const loadSavedTfBtn = document.getElementById("loadSavedTfBtn");
+  const tfStatus = document.getElementById("tfStatus");
+  const tfInfo = document.getElementById("tfInfo");
+
+  const askInput = document.getElementById("askInput");
+  const askTfBtn = document.getElementById("askTfBtn");
+  const tfAnswer = document.getElementById("tfAnswer");
+  const saveTfAnswerBtn = document.getElementById("saveTfAnswerBtn");
+  const correctedResponse = document.getElementById("correctedResponse");
+  const saveCorrectionBtn = document.getElementById("saveCorrectionBtn");
+
+  /************************************************************
+   * OUTILS TEXTE / TOKENS
+   ************************************************************/
+
+  function normalizeText(text) {
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function tokenize(text) {
+    const regex = /[\p{L}\p{N}]+|[.,!?;:]/gu;
+
+    return normalizeText(text)
+      .match(regex) || [];
+  }
+
+  function detokenize(tokens) {
+    return tokens
+      .join(" ")
+      .replace(/\s+([.,!?;:])/g, "$1");
+  }
+
+  function parseTokensFromDatabase(value) {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    return [];
+  }
+
+  function createExample(question, reponse, options = {}) {
+    return {
+      id: options.id || null,
+      question,
+      reponse,
+      tokensQuestion: options.tokensQuestion || tokenize(question),
+      tokensReponse: options.tokensReponse || tokenize(reponse),
+      sujet: options.sujet || "",
+      verbe: options.verbe || "",
+      complement: options.complement || "",
+      categorie: options.categorie || "general",
+      createdAt: options.createdAt || new Date().toISOString()
+    };
+  }
+
+  /************************************************************
+   * PARTIE 1 : MINI MODELE N-GRAM
+   ************************************************************/
+
+  function trainNgram(tokens, contextLength) {
+    const newModel = {};
+
+    for (let size = 1; size <= contextLength; size++) {
+      newModel[size] = {};
+    }
+
+    for (let i = 0; i < tokens.length; i++) {
+      for (let size = 1; size <= contextLength; size++) {
+        if (i + size >= tokens.length) continue;
+
+        const context = tokens.slice(i, i + size).join(" ");
+        const nextToken = tokens[i + size];
+
+        if (!newModel[size][context]) {
+          newModel[size][context] = {};
+        }
+
+        if (!newModel[size][context][nextToken]) {
+          newModel[size][context][nextToken] = 0;
+        }
+
+        newModel[size][context][nextToken]++;
+      }
+    }
+
+    return newModel;
+  }
+
+  function getNgramPrediction(contextTokens) {
+    for (let size = maxContextSize; size >= 1; size--) {
+      const context = contextTokens.slice(-size).join(" ");
+
+      if (ngramModel[size] && ngramModel[size][context]) {
+        return {
+          context,
+          size,
+          nextTokens: ngramModel[size][context]
+        };
+      }
+    }
+
+    return null;
+  }
+
+  function convertToProbabilities(nextTokens) {
+    const total = Object.values(nextTokens).reduce((sum, count) => sum + count, 0);
+
+    return Object.entries(nextTokens)
+      .map(([token, count]) => {
+        return {
+          token,
+          count,
+          probability: count / total
+        };
+      })
+      .sort((a, b) => b.probability - a.probability);
+  }
+
+  function sampleToken(probabilities, temperature) {
+    const adjusted = probabilities.map(item => {
+      return {
+        token: item.token,
+        weight: Math.pow(item.probability, 1 / temperature)
+      };
+    });
+
+    const totalWeight = adjusted.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * totalWeight;
+
+    for (const item of adjusted) {
+      random -= item.weight;
+
+      if (random <= 0) {
+        return item.token;
+      }
+    }
+
+    return adjusted[0].token;
+  }
+
+  function renderTokens(tokens) {
+    tokensDisplay.innerHTML = "";
+
+    tokens.forEach(token => {
+      const span = document.createElement("span");
+      span.className = "token";
+      span.textContent = token;
+      tokensDisplay.appendChild(span);
+    });
+  }
+
+  function renderNgramPrediction() {
+    const prompt = promptInput.value;
+    const promptTokens = tokenize(prompt);
+
+    if (promptTokens.length === 0) {
+      predictionDisplay.textContent = "Écris un début de phrase.";
+      return;
+    }
+
+    const prediction = getNgramPrediction(promptTokens);
+
+    if (!prediction) {
+      predictionDisplay.textContent = "Le modèle n-gram ne connaît pas ce contexte.";
+      return;
+    }
+
+    const probabilities = convertToProbabilities(prediction.nextTokens);
+
+    let output = "";
+    output += `Contexte utilisé : "${prediction.context}"\n`;
+    output += `Taille du contexte : ${prediction.size} token(s)\n\n`;
+    output += "Prochains tokens possibles :\n\n";
+
+    probabilities.forEach(item => {
+      const percent = (item.probability * 100).toFixed(2);
+
+      output += `- "${item.token}" : ${percent}% `;
+      output += `(vu ${item.count} fois)\n`;
+    });
+
+    predictionDisplay.textContent = output;
+  }
+
+  function generateNgramText() {
+    const prompt = promptInput.value;
+    const temperature = Number(temperatureInput.value);
+
+    let generatedTokens = tokenize(prompt);
+
+    if (generatedTokens.length === 0) {
+      generatedText.textContent = "Écris un début de phrase.";
+      return;
+    }
+
+    for (let i = 0; i < 40; i++) {
+      const prediction = getNgramPrediction(generatedTokens);
+
+      if (!prediction) {
+        break;
+      }
+
+      const probabilities = convertToProbabilities(prediction.nextTokens);
+      const nextToken = sampleToken(probabilities, temperature);
+
+      generatedTokens.push(nextToken);
+
+      if (
+        nextToken === "." &&
+        generatedTokens.length > tokenize(prompt).length + 5
+      ) {
+        break;
+      }
+    }
+
+    lastNgramPrompt = prompt;
+    lastNgramGenerated = detokenize(generatedTokens);
+
+    generatedText.textContent = lastNgramGenerated;
+  }
+
+  function trainNgramFromTextarea() {
+    const text = trainingText.value;
+    maxContextSize = Number(contextSize.value);
+
+    trainedTokens = tokenize(text);
+    ngramVocabulary = [...new Set(trainedTokens)];
+    ngramModel = trainNgram(trainedTokens, maxContextSize);
+
+    renderTokens(trainedTokens);
+
+    const contextCount = Object.values(ngramModel).reduce((total, contexts) => {
+      return total + Object.keys(contexts).length;
+    }, 0);
+
+    stats.innerHTML = `
+      <strong class="status-ok">Modèle n-gram entraîné !</strong><br>
+      Nombre total de tokens : ${trainedTokens.length}<br>
+      Taille du vocabulaire : ${ngramVocabulary.length}<br>
+      Nombre de contextes appris : ${contextCount}<br>
+      Taille maximale du contexte : ${maxContextSize} token(s)
+    `;
+  }
+
+  /************************************************************
+   * PARTIE 2 : MEMOIRE MYSQL VIA PHP
+   ************************************************************/
+
+  async function loadDataset() {
+    datasetStats.innerHTML = `
+      <span class="badge">Chargement depuis MySQL...</span>
+    `;
+
+    try {
+      const response = await fetch(API_GET_LEARNING);
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || "Erreur lors du chargement des données.");
+      }
+
+      dataset = result.data.map(row => {
+        const question = row.phrase || row.question || "";
+        const reponse = row.reponse || row.response || "";
+
+        const tokensQuestion = parseTokensFromDatabase(row.tokens_phrase);
+        const tokensReponse = parseTokensFromDatabase(row.tokens_reponse);
+
+        return createExample(question, reponse, {
+          id: row.id,
+          tokensQuestion: tokensQuestion.length > 0 ? tokensQuestion : tokenize(question),
+          tokensReponse: tokensReponse.length > 0 ? tokensReponse : tokenize(reponse),
+          sujet: row.sujet || "",
+          verbe: row.verbe || "",
+          complement: row.complement || "",
+          categorie: row.categorie || "general",
+          createdAt: row.created_at || row.createdAt
+        });
+      });
+
+      renderDataset();
+
+      if (dataset.length === 0) {
+        datasetStats.innerHTML = `
+          <span class="badge">Base MySQL vide</span>
+          <span class="badge">Ajoute tes premiers exemples</span>
+        `;
+      }
+
+    } catch (error) {
+      console.error(error);
+
+      dataset = defaultDataset.map(item => {
+        return createExample(item.question, item.reponse);
+      });
+
+      renderDataset();
+
+      datasetStats.innerHTML += `
+        <br><span class="status-error">
+          Impossible de charger MySQL. Dataset de secours chargé.
+        </span>
+      `;
+    }
+  }
+
+  function saveDataset() {
+    /*
+      Avant, cette fonction sauvegardait dans localStorage.
+      Maintenant, la vraie sauvegarde se fait avec saveExampleToDatabase().
+      On garde cette fonction pour mettre à jour l'affichage.
+    */
+    renderDataset();
+  }
+
+  function renderDataset() {
+    const uniqueResponses = getUniqueResponses(dataset);
+    const vocabulary = buildVocabularyFromDataset(dataset);
+
+    datasetStats.innerHTML = `
+      <span class="badge">Exemples : ${dataset.length}</span>
+      <span class="badge">Réponses uniques : ${uniqueResponses.length}</span>
+      <span class="badge">Mots appris : ${vocabulary.length}</span>
+      <span class="badge">Source : MySQL</span>
+    `;
+
+    jsonPreview.textContent = JSON.stringify(dataset, null, 2);
+  }
+
+  async function saveExampleToDatabase(example) {
+    const data = {
+      phrase: example.question,
+      reponse: example.reponse,
+      tokensPhrase: example.tokensQuestion,
+      tokensReponse: example.tokensReponse,
+      sujet: example.sujet || "",
+      verbe: example.verbe || "",
+      complement: example.complement || "",
+      categorie: example.categorie || "general"
+    };
+
+    const response = await fetch(API_SAVE_LEARNING, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Erreur lors de l'enregistrement.");
+    }
+
+    return result;
+  }
+
+  async function addExampleToDataset(question, reponse, options = {}) {
+    if (!question.trim() || !reponse.trim()) {
+      alert("Il faut une question et une réponse.");
+      return false;
+    }
+
+    const example = createExample(question, reponse, options);
+
+    try {
+      await saveExampleToDatabase(example);
+      await loadDataset();
+      return true;
+    } catch (error) {
+      console.error(error);
+      alert("Erreur : impossible d'enregistrer dans la base MySQL.");
+      return false;
+    }
+  }
+
+  function exportDatasetAsJson() {
+    const json = JSON.stringify(dataset, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "data-mini-llm-mysql.json";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function importDatasetFromJsonFile(file) {
+    const reader = new FileReader();
+
+    reader.onload = async event => {
+      try {
+        const parsed = JSON.parse(event.target.result);
+
+        if (!Array.isArray(parsed)) {
+          alert("Le fichier JSON doit contenir un tableau.");
+          return;
+        }
+
+        let importedCount = 0;
+
+        for (const item of parsed) {
+          const question = item.question || item.phrase || "";
+          const reponse = item.reponse || item.response || "";
+
+          if (!question.trim() || !reponse.trim()) {
+            continue;
+          }
+
+          const example = createExample(question, reponse, {
+            tokensQuestion: item.tokensQuestion || item.tokens_phrase || tokenize(question),
+            tokensReponse: item.tokensReponse || item.tokens_reponse || tokenize(reponse),
+            sujet: item.sujet || "",
+            verbe: item.verbe || "",
+            complement: item.complement || "",
+            categorie: item.categorie || "import"
+          });
+
+          await saveExampleToDatabase(example);
+          importedCount++;
+        }
+
+        await loadDataset();
+
+        alert(`${importedCount} exemple(s) importé(s) dans MySQL.`);
+      } catch (error) {
+        console.error(error);
+        alert("Erreur : fichier JSON invalide ou problème d'import MySQL.");
+      }
+    };
+
+    reader.readAsText(file);
+  }
+
+  async function resetDataset() {
+    /*
+      On ne vide pas MySQL ici.
+      On recharge simplement les données depuis la base.
+      C'est plus sûr.
+    */
+    const confirmation = confirm("Recharger les données depuis MySQL ?");
+
+    if (!confirmation) return;
+
+    await loadDataset();
+
+    tfStatus.textContent = "Données rechargées depuis MySQL. Réentraîne TensorFlow si nécessaire.";
+    tfStatus.className = "small status-warning";
+  }
+
+  /************************************************************
+   * PARTIE 3 : TENSORFLOW.JS
+   ************************************************************/
+
+  function getUniqueResponses(data) {
+    return [...new Set(data.map(item => item.reponse))];
+  }
+
+  function buildVocabularyFromDataset(data) {
+    const vocabularySet = new Set();
+
+    data.forEach(item => {
+      tokenize(item.question).forEach(token => vocabularySet.add(token));
+    });
+
+    return [...vocabularySet];
+  }
+
+  function vectorizeText(text, vocabulary) {
+    const tokens = tokenize(text);
+    const vector = new Array(vocabulary.length).fill(0);
+
+    tokens.forEach(token => {
+      const index = vocabulary.indexOf(token);
+
+      if (index !== -1) {
+        vector[index]++;
+      }
+    });
+
+    return vector;
+  }
+
+  function oneHot(index, size) {
+    const vector = new Array(size).fill(0);
+    vector[index] = 1;
+    return vector;
+  }
+
+  async function trainTensorFlowModel() {
+    if (dataset.length < 4) {
+      tfStatus.textContent = "Ajoute au moins 4 exemples dans MySQL pour entraîner TensorFlow.";
+      tfStatus.className = "small status-error";
+      return;
+    }
+
+    const vocabulary = buildVocabularyFromDataset(dataset);
+    const responses = getUniqueResponses(dataset);
+
+    if (vocabulary.length === 0 || responses.length < 2) {
+      tfStatus.textContent = "Il faut au moins 2 réponses différentes pour entraîner le modèle.";
+      tfStatus.className = "small status-error";
+      return;
+    }
+
+    tfStatus.textContent = "Préparation des données TensorFlow depuis MySQL...";
+    tfStatus.className = "small status-warning";
+
+    currentTfMeta = {
+      vocabulary,
+      responses
+    };
+
+    const xsArray = dataset.map(item => {
+      return vectorizeText(item.question, vocabulary);
+    });
+
+    const ysArray = dataset.map(item => {
+      const responseIndex = responses.indexOf(item.reponse);
+      return oneHot(responseIndex, responses.length);
+    });
+
+    const xs = tf.tensor2d(xsArray);
+    const ys = tf.tensor2d(ysArray);
+
+    if (neuralModel) {
+      neuralModel.dispose();
+    }
+
+    neuralModel = tf.sequential();
+
+    neuralModel.add(tf.layers.dense({
+      inputShape: [vocabulary.length],
+      units: Math.max(16, Math.min(64, vocabulary.length * 2)),
+      activation: "relu"
+    }));
+
+    neuralModel.add(tf.layers.dense({
+      units: 16,
+      activation: "relu"
+    }));
+
+    neuralModel.add(tf.layers.dense({
+      units: responses.length,
+      activation: "softmax"
+    }));
+
+    neuralModel.compile({
+      optimizer: tf.train.adam(0.03),
+      loss: "categoricalCrossentropy",
+      metrics: ["accuracy"]
+    });
+
+    tfStatus.textContent = "Entraînement du modèle TensorFlow...";
+    tfStatus.className = "small status-warning";
+
+    await neuralModel.fit(xs, ys, {
+      epochs: 160,
+      shuffle: true,
+      callbacks: {
+        onEpochEnd: async (epoch, logs) => {
+          if ((epoch + 1) % 20 === 0) {
+            const loss = logs.loss ? logs.loss.toFixed(4) : "n/a";
+            const accValue = logs.acc || logs.accuracy;
+            const acc = accValue ? accValue.toFixed(4) : "n/a";
+
+            tfStatus.textContent = `Entraînement : époque ${epoch + 1}/160 | loss : ${loss} | accuracy : ${acc}`;
+            await tf.nextFrame();
+          }
+        }
+      }
+    });
+
+    xs.dispose();
+    ys.dispose();
+
+    localStorage.setItem(TF_META_STORAGE_KEY, JSON.stringify(currentTfMeta));
+    await neuralModel.save(TF_MODEL_STORAGE_KEY);
+
+    tfStatus.textContent = "Modèle TensorFlow entraîné depuis MySQL et sauvegardé dans le navigateur.";
+    tfStatus.className = "small status-ok";
+
+    renderTensorFlowInfo();
+  }
+
+  async function loadSavedTensorFlowModel() {
+    try {
+      const savedMeta = localStorage.getItem(TF_META_STORAGE_KEY);
+
+      if (!savedMeta) {
+        tfStatus.textContent = "Aucune métadonnée TensorFlow sauvegardée.";
+        tfStatus.className = "small status-error";
+        return;
+      }
+
+      currentTfMeta = JSON.parse(savedMeta);
+      neuralModel = await tf.loadLayersModel(TF_MODEL_STORAGE_KEY);
+
+      tfStatus.textContent = "Modèle TensorFlow chargé depuis le navigateur.";
+      tfStatus.className = "small status-ok";
+
+      renderTensorFlowInfo();
+    } catch (error) {
+      console.error(error);
+      tfStatus.textContent = "Impossible de charger le modèle. Réentraîne-le.";
+      tfStatus.className = "small status-error";
+    }
+  }
+
+  function renderTensorFlowInfo() {
+    const vocabulary = currentTfMeta.vocabulary || [];
+    const responses = currentTfMeta.responses || [];
+
+    tfInfo.textContent =
+`Vocabulaire TensorFlow : ${vocabulary.length} mots
+Réponses possibles : ${responses.length}
+
+Mots appris :
+${vocabulary.join(", ")}
+
+Réponses apprises :
+${responses.map((response, index) => `${index + 1}. ${response}`).join("\n")}
+`;
+  }
+
+  async function askTensorFlow() {
+    if (!neuralModel) {
+      tfAnswer.textContent = "Le modèle TensorFlow n'est pas encore entraîné ou chargé.";
+      return;
+    }
+
+    const question = askInput.value.trim();
+
+    if (!question) {
+      tfAnswer.textContent = "Écris une question.";
+      return;
+    }
+
+    const vocabulary = currentTfMeta.vocabulary;
+    const responses = currentTfMeta.responses;
+
+    const inputVector = vectorizeText(question, vocabulary);
+    const inputTensor = tf.tensor2d([inputVector]);
+
+    const prediction = neuralModel.predict(inputTensor);
+    const probabilities = await prediction.data();
+
+    inputTensor.dispose();
+    prediction.dispose();
+
+    let bestIndex = 0;
+    let bestScore = probabilities[0];
+
+    for (let i = 1; i < probabilities.length; i++) {
+      if (probabilities[i] > bestScore) {
+        bestScore = probabilities[i];
+        bestIndex = i;
+      }
+    }
+
+    const sorted = Array.from(probabilities)
+      .map((score, index) => {
+        return {
+          response: responses[index],
+          score
+        };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+
+    const finalResponse = responses[bestIndex];
+
+    lastTfQuestion = question;
+    lastTfResponse = finalResponse;
+
+    let output = "";
+    output += `Question : ${question}\n\n`;
+    output += `Réponse choisie :\n${finalResponse}\n\n`;
+    output += `Confiance : ${(bestScore * 100).toFixed(2)}%\n\n`;
+    output += "Top réponses possibles :\n";
+
+    sorted.forEach(item => {
+      output += `- ${(item.score * 100).toFixed(2)}% : ${item.response}\n`;
+    });
+
+    tfAnswer.textContent = output;
+  }
+
+  /************************************************************
+   * EVENEMENTS
+   ************************************************************/
+
+  trainBtn.addEventListener("click", trainNgramFromTextarea);
+  predictBtn.addEventListener("click", renderNgramPrediction);
+  generateBtn.addEventListener("click", generateNgramText);
+
+  saveNgramAnswerBtn.addEventListener("click", async () => {
+    if (!lastNgramPrompt || !lastNgramGenerated) {
+      alert("Génère d'abord un texte avec le modèle n-gram.");
+      return;
+    }
+
+    const success = await addExampleToDataset(lastNgramPrompt, lastNgramGenerated, {
+      categorie: "ngram"
+    });
+
+    if (success) {
+      alert("La génération a été ajoutée dans MySQL.");
+    }
+  });
+
+  addExampleBtn.addEventListener("click", async () => {
+    const success = await addExampleToDataset(dataQuestion.value, dataResponse.value, {
+      categorie: "question_reponse"
+    });
+
+    if (success) {
+      dataQuestion.value = "";
+      dataResponse.value = "";
+      alert("Exemple enregistré dans MySQL.");
+    }
+  });
+
+  exportJsonBtn.addEventListener("click", exportDatasetAsJson);
+
+  importJsonBtn.addEventListener("click", () => {
+    jsonFileInput.click();
+  });
+
+  jsonFileInput.addEventListener("change", event => {
+    const file = event.target.files[0];
+
+    if (file) {
+      importDatasetFromJsonFile(file);
+      jsonFileInput.value = "";
+    }
+  });
+
+  clearDatasetBtn.addEventListener("click", resetDataset);
+
+  trainTfBtn.addEventListener("click", trainTensorFlowModel);
+  loadSavedTfBtn.addEventListener("click", loadSavedTensorFlowModel);
+  askTfBtn.addEventListener("click", askTensorFlow);
+
+  saveTfAnswerBtn.addEventListener("click", async () => {
+    if (!lastTfQuestion || !lastTfResponse) {
+      alert("Pose d'abord une question au modèle TensorFlow.");
+      return;
+    }
+
+    const success = await addExampleToDataset(lastTfQuestion, lastTfResponse, {
+      categorie: "renforcement_tensorflow"
+    });
+
+    if (success) {
+      alert("Cette réponse a été renforcée dans MySQL.");
+    }
+  });
+
+  saveCorrectionBtn.addEventListener("click", async () => {
+    const question = askInput.value.trim();
+    const correction = correctedResponse.value.trim();
+
+    if (!question || !correction) {
+      alert("Il faut une question et une correction.");
+      return;
+    }
+
+    const success = await addExampleToDataset(question, correction, {
+      categorie: "correction_humaine"
+    });
+
+    if (success) {
+      correctedResponse.value = "";
+      alert("Correction ajoutée dans MySQL. Réentraîne TensorFlow pour qu'il apprenne.");
+    }
+  });
+
+  /************************************************************
+   * INITIALISATION
+   ************************************************************/
+
+  async function initApp() {
+    await loadDataset();
+    trainNgramFromTextarea();
+
+    tfStatus.textContent = "Mémoire chargée depuis MySQL. Tu peux maintenant entraîner TensorFlow.";
+    tfStatus.className = "small status-warning";
+  }
+
+  initApp();
+</script>
+</body>
+</html>
