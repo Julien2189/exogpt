@@ -211,7 +211,7 @@ async function connexion(){
 }
 
 connexion();
-*/
+
 
 
 //exo 10 
@@ -253,3 +253,85 @@ produits.forEach(element => {
 });
 
 console.log(`total : ${total}`) ; 
+
+
+*/
+//exo 11
+const commandes = [
+  {
+    id: 1,
+    client: "Julien",
+    produits: [
+      { nom: "PC", prix: 900 },
+      { nom: "Souris", prix: 25 }
+    ],
+    payee: true
+  },
+  {
+    id: 2,
+    client: "Marie",
+    produits: [
+      { nom: "Clavier", prix: 70 },
+      { nom: "Écran", prix: 180 }
+    ],
+    payee: false
+  }
+];
+
+commandes.forEach((element ,index)=> {
+    element.produits.forEach((produit)=>{
+        console.log(`commande n:${element.id} client:${element.client} produits:${produit.nom}: prix: ${produit.prix}`) ;
+
+    });
+});
+
+let totalCLient1 = 0 ; 
+let totalClient2 = 0 ;
+commandes.forEach(element  =>{
+    element.produits.forEach((produit) =>{
+      //  console.log(produit.prix) ;
+     //   console.log(element.id) ;
+        if(element.id ===1) {
+        totalCLient1 += produit.prix ;
+     }
+     if(element.id === 2) {
+        totalClient2 += produit.prix ;
+    }
+    })
+    
+    
+})
+console.log(`total client1 = ${totalCLient1}`) ; 
+console.log(`total client2 = ${totalClient2}`) ; 
+
+commandes.forEach(element =>{
+    element.produits.forEach((produit) =>{
+        if(element.payee === true) {
+    console.log(`client n: ${element.id} : produits ${produit.nom} ${produit.prix}`) ;
+    }
+    })
+    
+})
+
+
+async function envoyerCommande(id) {
+
+    let nb =  (id - 1 ) ; 
+//console.log(nb < commandes.length) ; 
+   //console.log(commandes.length) ;  
+   
+   
+    if( nb < commandes.length) {
+        if(commandes[nb].payee === true ) {
+            console.log("Commande envoyée") ;
+        }
+        else {
+            console.log('Commande non payée') ;
+        }
+    }
+    else{
+        console.log("commande introuvable") ; 
+    }
+ 
+}
+await envoyerCommande(3) ;
